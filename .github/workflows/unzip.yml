@@ -1,0 +1,37 @@
+name: Unzip and Commit
+on:
+  workflow_dispatch: # 手动触发
+  push:
+    paths:
+      - '**.zip'
+
+permissions: # 关键权限设置
+  contents: write # 赋予写入权限
+
+jobs:
+  unzip_and_commit:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }} # 显式使用 token
+
+    - name: Unzip files
+      run: |
+        for zip_file in *.zip; do
+          unzip "$zip_file"
+        done
+
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "524982075@qq.com"
+        git config --local user.name "azer1013"
+        if [ -n "$(git status --porcelain)" ]; then
+          git add .
+          git commit -m "Auto-unzip files"
+          git push 
+        else
+          echo "No changes to commit."
+        fi
+        
